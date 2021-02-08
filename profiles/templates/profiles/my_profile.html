@@ -1,0 +1,93 @@
+{% extends "main/main_layout.html" %}
+{% load static %}
+
+{% block title %}
+    profile
+{% endblock title %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% endblock style %}
+
+{% block content %}
+    
+    <div class="ui segment">
+        {% if confirm %}
+            <div class="ui teal message">{{request.user|capfirst}} Profile Updated</div>
+        {% endif %}
+        <h3>Profile {{request.user|capfirst}}</h3>
+        <div class="ui grid">
+            <div class="row">
+                <div class="six wide column">
+                    <img src="{{profile.avatar.url}}" alt="" class="ui medium rounded image">
+                    <div class="row mt-5">
+                        <button class="ui green button mt-5" id="modal-update">Update</button>
+                    </div>
+                </div>
+                <div class="ten wide column">
+                    <table class="ui table">
+                        <tbody>
+                            <tr>
+                                <td>Username</td>
+                                <td>{{request.user}}</td>
+                            </tr>
+                            <tr>
+                                <td>firstname</td>
+                                <td>{{profile.first_name}}</td>
+                            </tr>
+                            <tr>
+                                <td>lastname</td>
+                                <td>{{profile.last_name}}</td>
+                            </tr>
+                            <tr>
+                                <td>bio</td>
+                                <td>{{profile.bio}}</td>
+                            </tr>
+                            <tr>
+                                <td>Posts Num</td>
+                                <td>{{profile.getPostsCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Likes</td>
+                                <td>{{profile.getLikeGivenCount}}</td>
+                            </tr>
+                            <tr>
+                                <td>Liked Total</td>
+                                <td>{{profile.getLikedRecievedCount}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+          Profile Picture
+        </div>
+        <div class="image content">
+          <div class="ui medium image">
+            <img src="{{profile.avatar.url}}">
+          </div>
+            <div class="description">
+                <div class="ui header">Update Your Profile</div>
+                    <form action="{% url 'profiles:my-profile' %}" method="POST" enctype="multipart/form-data" class="ui form">
+                    {% csrf_token %}
+                    {{form.as_p}}
+                    <br>
+                    <div class="actions">
+                        <button type="submit" class="ui teal button right floated">Update</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+      </div>
+    
+{% endblock content %}
+
+{% block script %}
+    <script src="{% static 'profiles/js/main.js' %}" type="text/javascript"></script>
+{% endblock script %}

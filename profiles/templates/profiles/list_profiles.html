@@ -1,0 +1,69 @@
+{% extends "main/main_layout.html" %}
+{% load static %}
+
+{% block title %}
+    List Profiles
+{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}?{% now 'U' %}">
+{% endblock style %}
+
+{% block content %}
+<ul>
+    <h3>{{request.user}}</h3>
+
+    
+    {% if is_empty %}
+        <h3>No Friends</h3>
+    {% endif %}
+        
+    {% for profile in profiles %}
+        <div class="ui segment">
+            <div class="ui grid">
+                <div class="row">
+                    <div class="three wide column">
+                        <img src="{{profile.avatar.url}}" alt="" class="ui small circular image">
+                    </div>
+                    <div class="thirteen wide column">
+                        <h3>{{profile.user}}</h3>
+                        <p>{{profile.bio}}</p>
+                        <a href="{{ profile.getURL }}"><button class="ui green button mb-5 wide-btn15">See Profile</button></a>
+                        <br>
+
+                        {% if profile.user not in rel_reciever and profile.user not in rel_sender %}
+                        <form action="{% url 'profiles:send-invite' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_pk"  value="{{profile.pk}}">
+                            <button type="submit" class="ui green basic button wide-btn15"><i class="plus square icon"></i>Add</button>
+                        </form>
+                        {% endif %}
+                        
+                        
+                        {% if profile.user in rel_reciever and request.user not in profile.getAllFriends %}
+                        <button type="submit" class="ui teal disabled basic button wide-btn15"><i class="user icon"></i>Waiting accepted</button>
+                        {% endif %}
+                        
+                        {% if profile.user in rel_sender and request.user not in profile.getAllFriends %}
+                        <button class="ui pink basic button wide-btn15"><i class="user icon"></i>Waiting Your aprove</button>
+                        {% endif %}
+                        
+                        
+                        {% if request.user in profile.getAllFriends %}
+                        <form action="{% url 'profiles:delete-friend' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_pk"  value="{{profile.pk}}">    
+                            <button type="submit" class="ui red basic button wide-btn15"><i class="minus square icon"></i>Remove</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</ul>
+{% endblock content %}
+
+{% block script %}
+
+{% endblock script %}

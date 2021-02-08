@@ -1,0 +1,105 @@
+{% extends 'main/main_layout.html' %}
+{% load static %}
+
+{% block title %}
+    Posts
+{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}?{% now 'U' %}">
+{% endblock style %}
+
+{% block content %}
+<div class="ui grid">
+    <div class="eleven wide column">
+        {% for post in posts %}
+
+        <div class="ui fluid card">
+            <div class="content">
+                <div class="right floated meta">
+                <div class="ui grid">
+                    <div class="row">
+                        {% ifequal request.user post.author.user %}
+                            <a href="{% url 'posts:update-post' post.pk %}"><button class="ui teal basic button">Update</button></a>
+                            <a href="{% url 'posts:delete-post' post.pk %}"><button class="ui red basic button">Delete</button></a>
+                        {% endifequal %}
+                    </div>
+                </div>
+                    
+                </div>
+                <img class="ui avatar image" src={{post.author.avatar.url}}> 
+                {{ post.author }} - {{ post.created|timesince}} ago
+            </div>
+            <div class="ui fluid image">
+                {% if post.image %}
+                    <img src={{post.image.url}}>
+                {% endif %}
+            </div>
+            <div class="content">
+                <p> {{ post.content }} </p>
+                <div class="right floated">
+                    <form action="{% url 'posts:like-unlike' %}" method="POST" class="like-form" id="{{post.id}}">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value={{post.id}}>
+                        <strong class="like-count{{post.id}}"> {{post.likeCount}} </strong>
+                        <button type="submit" class="ui btn sm button like-btn{{post.id}}">
+                        {% if profile not in post.liked.all %}
+                            <i class="heart icon teal icon{{post.id}}"></i>
+                        {% else %}
+                            <i class="heart icon red icon{{post.id}}"></i>
+                        {% endif %}
+                        </button>
+                    </form>
+                </div>
+                <i class="comment icon"></i>
+                <span> {{ post.commentCount }} comment{{post.commentCount|pluralize}}</span>
+            </div>
+            <div class="extra content">
+                <div class="mb-5">
+                  
+                </div>
+                <button class="cmt_btn ui button mb-5">show / hide comments</button>
+                <div class="comment-box">
+                {% if post.comment_set.all %}
+                    {% for comment in post.comment_set.all %}
+                    
+                        <div class="ui segment mb-5">
+                            <img class="ui avatar image" src={{comment.user.avatar.url}}>
+                            <span>{{ comment.user }}</span>
+                            <div class='mt-5'>{{ comment.body }}</div>
+                        </div>
+                    
+                    {% endfor %}
+                {% endif %}
+                </div>
+  
+                <form action="" method="POST"class='ui fluid form'>
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value={{post.id}}>
+                    {{ comment_form }}
+                    <button type="submit" name="sumbit_comment" class="ui teal button mt-5 w-full">Send</button>
+                </form>
+            </div>
+        </div>
+
+
+        {% endfor %}
+    </div>
+    <div class="five wide column">
+        <div class="ui segment">
+            {% if post_added %}
+                <div class="ui green message">Post added</div>
+            {% endif %}
+            <form action="" method="POST" class='ui form' enctype="multipart/form-data">
+                {% csrf_token %}
+                {{post_form}}
+                <button type='submit' name="submit_post" class="ui positive button w-full mt-5">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block script %}
+    <script src="{% static 'posts/js/main.js' %}" type="text/javascript"></script>
+{% endblock script %}
